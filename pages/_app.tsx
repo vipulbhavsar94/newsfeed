@@ -1,6 +1,7 @@
-import {ApolloClient, InMemoryCache, ApolloProvider} from '@apollo/client'
-import {createGlobalStyle, ThemeProvider} from 'styled-components'
-import type { AppProps } from 'next/app'
+import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
+import { createGlobalStyle, ThemeProvider } from "styled-components";
+import type { AppProps } from "next/app";
+import { NewsFeed } from "graphql/db";
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -12,17 +13,40 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         </ApolloProvider>
       </ThemeProvider>
     </>
-  )
+  );
 }
 
+const mergeNewsFeed = (existing: NewsFeed, incoming: NewsFeed) => {
+  console.log(existing, incoming);
+  if (existing?.items?.length && incoming?.items?.length) {
+    return {
+      cursor: incoming.cursor,
+      items: [...existing.items, ...incoming.items],
+    };
+  } else if (!incoming?.items?.length) {
+    return existing;
+  }
+  return incoming;
+};
+
 const client = new ApolloClient({
-  uri: '/api/graphql',
-  cache: new InMemoryCache(),
-})
+  uri: "/api/graphql",
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          newsFeed: {
+            keyArgs: ["fellowship"],
+            merge: mergeNewsFeed,
+          },
+        },
+      },
+    },
+  }),
+});
 
 const theme = {
-  colors: {
-  }
+  colors: {},
 };
 
 const GlobalStyle = createGlobalStyle`

@@ -22,6 +22,21 @@ const typeDefs = gql`
   type Query {
     project(id: Int!): Project!
     user(id: Int!): User!
+    newsFeed(fellowship: String!, cursor: String): NewsFeedResult!
+  }
+
+  type NewsFeedResult {
+    cursor: String,
+    items: [NewsFeedItem!]
+  }
+
+  type NewsFeedItem {
+    uId: Int!
+    created_ts: String!
+    name: String!
+    fellowship: String!
+    avatar_url: String
+    type: String!
   }
 `;
 

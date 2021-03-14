@@ -1,33 +1,37 @@
-import path from 'path'
-import {Database} from 'sqlite3'
+import path from "path";
+import { Database } from "sqlite3";
 
 class AsyncDatabase {
   db: Database;
 
   constructor(filename: string) {
-    this.db = new Database(filename)
+    this.db = new Database(filename);
   }
 
-  async getOne<T = any>(sql: string, params: any[] = []): Promise<T | undefined> {
+  async getOne<T = any>(
+    sql: string,
+    params: any[] = []
+  ): Promise<T | undefined> {
     const rows = await this.getAll(sql, params);
     return rows[0];
   }
 
   async getAll<T = any>(sql: string, params: any[] = []): Promise<T[]> {
     return new Promise((resolve, reject) => {
-      const stmt = this.db.prepare(sql)
+      const stmt = this.db.prepare(sql);
+      console.log(params);
       stmt.all(...params, (err: Error | undefined, rows: any[]) => {
         if (err) {
-          reject(err)
+          reject(err);
         } else {
-          resolve(rows)
+          resolve(rows);
         }
-      })
-    })
+      });
+    });
   }
 }
 
-export default new AsyncDatabase(path.join(process.cwd(), 'db.sqlite'))
+export default new AsyncDatabase(path.join(process.cwd(), "db.sqlite"));
 
 export type UserRow = {
   id: number;
@@ -37,7 +41,7 @@ export type UserRow = {
   fellowship: "founders" | "angels" | "writers";
   created_ts: Date;
   updated_ts: Date;
-}
+};
 
 export type ProjectRow = {
   id: number;
@@ -46,12 +50,12 @@ export type ProjectRow = {
   icon_url: string;
   created_ts: Date;
   updated_ts: Date;
-}
+};
 
 export type UserProjectRow = {
   user_id: number;
   project_id: number;
-}
+};
 
 export type AnnouncementRow = {
   id: number;
@@ -60,4 +64,18 @@ export type AnnouncementRow = {
   body: string;
   created_ts: Date;
   updated_ts: Date;
-}
+};
+
+export type NewsFeedRow = {
+  uId: number;
+  created_ts: string;
+  name: string;
+  fellowship: "founders" | "angels" | "writers" | "all";
+  avatar_url: string;
+  type: string;
+};
+
+export type NewsFeed = {
+  items: NewsFeedRow[];
+  cursor: string | null;
+};
